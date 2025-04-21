@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 350px;
+            max-width: 90%;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="tel"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 0;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .otp-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .otp-input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .hidden {
+            display: none;
+        }
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Secure Login</h2>
+        
+        <!-- Phone Number Form -->
+        <div id="phoneForm">
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" placeholder="Enter your phone number" required>
+            </div>
+            <button id="sendOtpBtn">Send OTP</button>
+        </div>
+        
+        <!-- OTP Verification Form -->
+        <div id="otpForm" class="hidden">
+            <div class="form-group">
+                <label for="otp">Enter OTP sent to your phone:</label>
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                    <input type="text" class="otp-input" maxlength="1" data-index="6">
+                </div>
+            </div>
+            <button id="verifyOtpBtn">Verify OTP</button>
+            <p id="resendOtp" style="text-align: center; cursor: pointer; color: #4CAF50;">Resend OTP</p>
+        </div>
+        
+        <!-- Success Message -->
+        <div id="successMessage" class="message success hidden">
+            Login successful! Redirecting...
+        </div>
+        
+        <!-- Error Message -->
+        <div id="errorMessage" class="message error hidden"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneForm = document.getElementById('phoneForm');
+            const otpForm = document.getElementById('otpForm');
+            const sendOtpBtn = document.getElementById('sendOtpBtn');
+            const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+            const resendOtp = document.getElementById('resendOtp');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const phoneInput = document.getElementById('phone');
+            const otpInputs = document.querySelectorAll('.otp-input');
+            
+            // Function to handle OTP input behavior
+            otpInputs.forEach(input => {
+                input.addEventListener('keyup', function(e) {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    
+                    if (e.key === 'Backspace' || e.key === 'Delete') {
+                        if (index > 1 && this.value === '') {
+                            document.querySelector(`.otp-input[data-index="${index - 1}"]`).focus();
+                        }
+                    } else if (this.value.length === 1) {
+                        if (index < 6) {
+                            document.querySelector(`.otp-input[data-index="${index + 1}"]`).focus();
+                        }
+                    }
+                });
+            });
+            
+            // Function to show error message
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    errorMessage.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // Function to send OTP (to be implemented with Twilio)
+            function sendOTP(phoneNumber) {
+                // This function would be implemented with your backend API
+                // that interacts with Twilio to send an OTP
+                
+                // For demonstration purposes, we'll simulate the API call
+                console.log("Sending OTP to:", phoneNumber);
+                
+                // In a real implementation, you would make a fetch request to your backend:
+                /*
+                fetch('/api/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phoneNumber }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        phoneForm.classList.add('hidden');
+                        otpForm.classList.remove('hidden');
+                    } else {
+                        showError(data.message || 'Failed to send OTP');
+                    }
+                })
+                .catch(error => {
+                    showError('Network error. Please try again.');
+                    console.error('Error:', error);
+                });
+                */
+                
+                // For this demo, we'll just show the OTP form
+                phoneForm.classList.add('hidden');
+                otpForm.classList.remove('hidden');
+            }
+            
+            // Function to verify OTP (to be implemented with Twilio)
+            function verifyOTP(otp) {
+                // This function would be implemented with your backend API
+                // that verifies the OTP with Twilio
+                
+                // For demonstration purposes, we'll simulate the API call
+                console.log("Verifying OTP:", otp);
+                
+                // In a real implementation, you would make a fetch request to your backend:
+                /*
+                fetch('/api/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        phoneNumber: phoneInput.value,
+                        otp: otp
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        otpForm.classList.add('hidden');
+                        successMessage.classList.remove('hidden');
+                        setTimeout(() => {
+                            // Redirect to dashboard or homepage
+                            window.location.href = '/dashboard';
+                        }, 2000);
+                    } else {
+                        showError(data.message || 'Invalid OTP');
+                    }
+                })
+                .catch(error => {
+                    showError('Network error. Please try again.');
+                    console.error('Error:', error);
+                });
+                */
+                
+                // For this demo, we'll validate if the OTP is "123456"
+                if (otp === "123456") {
+                    otpForm.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                    setTimeout(() => {
+                        // In a real app, you would redirect to the dashboard or homepage
+                        alert("Login successful! In a real app, you would be redirected now.");
+                    }, 2000);
+                } else {
+                    showError('Invalid OTP. Please try again.');
+                }
+            }
+            
+            // Send OTP button click handler
+            sendOtpBtn.addEventListener('click', function() {
+                const phoneNumber = phoneInput.value.trim();
+                if (!phoneNumber) {
+                    showError('Please enter a valid phone number');
+                    return;
+                }
+                
+                // Remove any non-numeric characters for validation
+                const numericPhone = phoneNumber.replace(/\D/g, '');
+                
+                if (numericPhone.length < 10) {
+                    showError('Please enter a valid phone number');
+                    return;
+                }
+                
+                sendOTP(phoneNumber);
+            });
+            
+            // Verify OTP button click handler
+            verifyOtpBtn.addEventListener('click', function() {
+                let otp = '';
+                otpInputs.forEach(input => {
+                    otp += input.value;
+                });
+                
+                if (otp.length !== 6) {
+                    showError('Please enter a valid 6-digit OTP');
+                    return;
+                }
+                
+                verifyOTP(otp);
+            });
+            
+            // Resend OTP click handler
+            resendOtp.addEventListener('click', function() {
+                sendOTP(phoneInput.value);
+                showError('OTP resent successfully');
+            });
+        });
+    </script>
+</body>
+</html>

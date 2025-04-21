@@ -1,0 +1,12 @@
+{
+    "require": {
+        "mailersend/mailersend": "^0.32.0",
+        "symfony/http-client": "*",
+        "nyholm/psr7": "^1.8"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
